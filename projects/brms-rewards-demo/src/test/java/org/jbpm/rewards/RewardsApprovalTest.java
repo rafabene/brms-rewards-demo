@@ -81,7 +81,8 @@ public class RewardsApprovalTest extends JbpmJUnitTestCase {
 		params = new HashMap<String, Object>();
 		// initialize process parameters.
 		params.put("employee", "erics");
-		params.put("reason", "Amazing demos for JBoss World!");		
+		params.put("reason", "Amazing demos for JBoss World!");
+		params.put("outcome", "default");
 	}
 
 	@Override
@@ -104,8 +105,8 @@ public class RewardsApprovalTest extends JbpmJUnitTestCase {
 		taskService.start(task.getId(), "mary");
 		
 		Map<String, Object> taskParams = new HashMap<String, Object>();
-		taskParams.put("explanation", "Great work");
-		taskParams.put("outcome", "Approved");
+		taskParams.put("Explanation", "Great work");
+		taskParams.put("Outcome", "Approved");
 		
 		// Serialized and inserted.
 		ContentData content = new ContentData();
@@ -113,9 +114,10 @@ public class RewardsApprovalTest extends JbpmJUnitTestCase {
 		content.setContent(getByteArrayFromObject(taskParams));
 		
 		// add results of task.
-		taskService.complete(task.getId(), "mary", content);
+		taskService.complete(task.getId(), "mary", content);     // BUG: this content is not copied into the process variables when task completes. 
 
 		// test for completion and in correct end node.
+		assertProcessVarExists(processInstance, "outcome");
 		assertProcessInstanceCompleted(processInstance.getId(), ksession);
 		assertNodeTriggered(processInstance.getId(), "End Approved");
 	}
